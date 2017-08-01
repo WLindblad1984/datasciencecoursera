@@ -1,0 +1,1243 @@
+codebook(Tidy_Data)
+
+data_path <- file.path("C:/Users/owner/Desktop/Coursera/Data_Science/Getting_Cleaning_Data","UCI HAR Dataset")
+data_files <- list.files(data_path, recursive=TRUE)
+data_files
+ [1] "activity_labels.txt"                         
+ [2] "features.txt"                                
+ [3] "features_info.txt"                           
+ [4] "README.txt"                                  
+ [5] "test/Inertial Signals/body_acc_x_test.txt"   
+ [6] "test/Inertial Signals/body_acc_y_test.txt"   
+ [7] "test/Inertial Signals/body_acc_z_test.txt"   
+ [8] "test/Inertial Signals/body_gyro_x_test.txt"  
+ [9] "test/Inertial Signals/body_gyro_y_test.txt"  
+[10] "test/Inertial Signals/body_gyro_z_test.txt"  
+[11] "test/Inertial Signals/total_acc_x_test.txt"  
+[12] "test/Inertial Signals/total_acc_y_test.txt"  
+[13] "test/Inertial Signals/total_acc_z_test.txt"  
+[14] "test/subject_test.txt"                       
+[15] "test/X_test.txt"                             
+[16] "test/y_test.txt"                             
+[17] "train/Inertial Signals/body_acc_x_train.txt" 
+[18] "train/Inertial Signals/body_acc_y_train.txt" 
+[19] "train/Inertial Signals/body_acc_z_train.txt" 
+[20] "train/Inertial Signals/body_gyro_x_train.txt"
+[21] "train/Inertial Signals/body_gyro_y_train.txt"
+[22] "train/Inertial Signals/body_gyro_z_train.txt"
+[23] "train/Inertial Signals/total_acc_x_train.txt"
+[24] "train/Inertial Signals/total_acc_y_train.txt"
+[25] "train/Inertial Signals/total_acc_z_train.txt"
+[26] "train/subject_train.txt"                     
+[27] "train/X_train.txt"                           
+[28] "train/y_train.txt"                           
+#Reading in the Y data
+y_data_test <- read.table(file.path(data_path,"test","Y_test.txt"),header=FALSE)
+y_data_train <- read.table(file.path(data_path,"train","Y_train.txt"),header=FALSE)
+ 
+#Reading in the X data
+x_data_test <- read.table(file.path(data_path,"test","X_test.txt"),header=FALSE)
+x_data_train <- read.table(file.path(data_path,"train","X_train.txt"),header=FALSE)
+ 
+#Reading in the Subject data
+subject_data_test <- read.table(file.path(data_path,"test","subject_test.txt"),header=FALSE)
+subject_data_train <- read.table(file.path(data_path,"train","subject_train.txt"),header=FALSE)
+subject_data <- rbind(subject_data_train,subject_data_test)
+y_data <- rbind(y_data_train,y_data_test)
+x_data <- rbind(x_data_train,x_data_test)
+names(subject_data) <- c("Subject")
+names(y_data) <- c("Activity")
+feature_data <- read.table(file.path(data_path,"features.txt"),head=FALSE)
+names(x_data) <- feature_data$V2
+merged_data1 <- cbind(subject_data,y_data)
+merged_data <- cbind(x_data,merged_data1)
+feature_data_subset <- feature_data$V2[grep("mean\\(\\)|std\\(\\)",feature_data$V2)]
+select_feature_names <- c(as.character(feature_data_subset),"Subject","Activity")
+Data <- subset(merged_data,select=select_feature_names)
+str(Data)
+
+data.frame':   10299 obs. of  68 variables:
+ $ tBodyAcc-mean()-X          : num  0.289 0.278 0.28 0.279 0.277 ...
+ $ tBodyAcc-mean()-Y          : num  -0.0203 -0.0164 -0.0195 -0.0262 -0.0166 ...
+ $ tBodyAcc-mean()-Z          : num  -0.133 -0.124 -0.113 -0.123 -0.115 ...
+ $ tBodyAcc-std()-X           : num  -0.995 -0.998 -0.995 -0.996 -0.998 ...
+ $ tBodyAcc-std()-Y           : num  -0.983 -0.975 -0.967 -0.983 -0.981 ...
+ $ tBodyAcc-std()-Z           : num  -0.914 -0.96 -0.979 -0.991 -0.99 ...
+ $ tGravityAcc-mean()-X       : num  0.963 0.967 0.967 0.968 0.968 ...
+ $ tGravityAcc-mean()-Y       : num  -0.141 -0.142 -0.142 -0.144 -0.149 ...
+ $ tGravityAcc-mean()-Z       : num  0.1154 0.1094 0.1019 0.0999 0.0945 ...
+ $ tGravityAcc-std()-X        : num  -0.985 -0.997 -1 -0.997 -0.998 ...
+ $ tGravityAcc-std()-Y        : num  -0.982 -0.989 -0.993 -0.981 -0.988 ...
+ $ tGravityAcc-std()-Z        : num  -0.878 -0.932 -0.993 -0.978 -0.979 ...
+ $ tBodyAccJerk-mean()-X      : num  0.078 0.074 0.0736 0.0773 0.0734 ...
+ $ tBodyAccJerk-mean()-Y      : num  0.005 0.00577 0.0031 0.02006 0.01912 ...
+ $ tBodyAccJerk-mean()-Z      : num  -0.06783 0.02938 -0.00905 -0.00986 0.01678 ...
+ $ tBodyAccJerk-std()-X       : num  -0.994 -0.996 -0.991 -0.993 -0.996 ...
+ $ tBodyAccJerk-std()-Y       : num  -0.988 -0.981 -0.981 -0.988 -0.988 ...
+ $ tBodyAccJerk-std()-Z       : num  -0.994 -0.992 -0.99 -0.993 -0.992 ...
+ $ tBodyGyro-mean()-X         : num  -0.0061 -0.0161 -0.0317 -0.0434 -0.034 ...
+ $ tBodyGyro-mean()-Y         : num  -0.0314 -0.0839 -0.1023 -0.0914 -0.0747 ...
+ $ tBodyGyro-mean()-Z         : num  0.1077 0.1006 0.0961 0.0855 0.0774 ...
+ $ tBodyGyro-std()-X          : num  -0.985 -0.983 -0.976 -0.991 -0.985 ...
+ $ tBodyGyro-std()-Y          : num  -0.977 -0.989 -0.994 -0.992 -0.992 ...
+ $ tBodyGyro-std()-Z          : num  -0.992 -0.989 -0.986 -0.988 -0.987 ...
+ $ tBodyGyroJerk-mean()-X     : num  -0.0992 -0.1105 -0.1085 -0.0912 -0.0908 ...
+ $ tBodyGyroJerk-mean()-Y     : num  -0.0555 -0.0448 -0.0424 -0.0363 -0.0376 ...
+ $ tBodyGyroJerk-mean()-Z     : num  -0.062 -0.0592 -0.0558 -0.0605 -0.0583 ...
+ $ tBodyGyroJerk-std()-X      : num  -0.992 -0.99 -0.988 -0.991 -0.991 ...
+ $ tBodyGyroJerk-std()-Y      : num  -0.993 -0.997 -0.996 -0.997 -0.996 ...
+ $ tBodyGyroJerk-std()-Z      : num  -0.992 -0.994 -0.992 -0.993 -0.995 ...
+ $ tBodyAccMag-mean()         : num  -0.959 -0.979 -0.984 -0.987 -0.993 ...
+ $ tBodyAccMag-std()          : num  -0.951 -0.976 -0.988 -0.986 -0.991 ...
+ $ tGravityAccMag-mean()      : num  -0.959 -0.979 -0.984 -0.987 -0.993 ...
+ $ tGravityAccMag-std()       : num  -0.951 -0.976 -0.988 -0.986 -0.991 ...
+ $ tBodyAccJerkMag-mean()     : num  -0.993 -0.991 -0.989 -0.993 -0.993 ...
+ $ tBodyAccJerkMag-std()      : num  -0.994 -0.992 -0.99 -0.993 -0.996 ...
+ $ tBodyGyroMag-mean()        : num  -0.969 -0.981 -0.976 -0.982 -0.985 ...
+ $ tBodyGyroMag-std()         : num  -0.964 -0.984 -0.986 -0.987 -0.989 ...
+ $ tBodyGyroJerkMag-mean()    : num  -0.994 -0.995 -0.993 -0.996 -0.996 ...
+ $ tBodyGyroJerkMag-std()     : num  -0.991 -0.996 -0.995 -0.995 -0.995 ...
+ $ fBodyAcc-mean()-X          : num  -0.995 -0.997 -0.994 -0.995 -0.997 ...
+ $ fBodyAcc-mean()-Y          : num  -0.983 -0.977 -0.973 -0.984 -0.982 ...
+ $ fBodyAcc-mean()-Z          : num  -0.939 -0.974 -0.983 -0.991 -0.988 ...
+ $ fBodyAcc-std()-X           : num  -0.995 -0.999 -0.996 -0.996 -0.999 ...
+ $ fBodyAcc-std()-Y           : num  -0.983 -0.975 -0.966 -0.983 -0.98 ...
+ $ fBodyAcc-std()-Z           : num  -0.906 -0.955 -0.977 -0.99 -0.992 ...
+ $ fBodyAccJerk-mean()-X      : num  -0.992 -0.995 -0.991 -0.994 -0.996 ...
+ $ fBodyAccJerk-mean()-Y      : num  -0.987 -0.981 -0.982 -0.989 -0.989 ...
+ $ fBodyAccJerk-mean()-Z      : num  -0.99 -0.99 -0.988 -0.991 -0.991 ...
+ $ fBodyAccJerk-std()-X       : num  -0.996 -0.997 -0.991 -0.991 -0.997 ...
+ $ fBodyAccJerk-std()-Y       : num  -0.991 -0.982 -0.981 -0.987 -0.989 ...
+ $ fBodyAccJerk-std()-Z       : num  -0.997 -0.993 -0.99 -0.994 -0.993 ...
+ $ fBodyGyro-mean()-X         : num  -0.987 -0.977 -0.975 -0.987 -0.982 ...
+ $ fBodyGyro-mean()-Y         : num  -0.982 -0.993 -0.994 -0.994 -0.993 ...
+ $ fBodyGyro-mean()-Z         : num  -0.99 -0.99 -0.987 -0.987 -0.989 ...
+ $ fBodyGyro-std()-X          : num  -0.985 -0.985 -0.977 -0.993 -0.986 ...
+ $ fBodyGyro-std()-Y          : num  -0.974 -0.987 -0.993 -0.992 -0.992 ...
+ $ fBodyGyro-std()-Z          : num  -0.994 -0.99 -0.987 -0.989 -0.988 ...
+ $ fBodyAccMag-mean()         : num  -0.952 -0.981 -0.988 -0.988 -0.994 ...
+ $ fBodyAccMag-std()          : num  -0.956 -0.976 -0.989 -0.987 -0.99 ...
+ $ fBodyBodyAccJerkMag-mean() : num  -0.994 -0.99 -0.989 -0.993 -0.996 ...
+ $ fBodyBodyAccJerkMag-std()  : num  -0.994 -0.992 -0.991 -0.992 -0.994 ...
+ $ fBodyBodyGyroMag-mean()    : num  -0.98 -0.988 -0.989 -0.989 -0.991 ...
+ $ fBodyBodyGyroMag-std()     : num  -0.961 -0.983 -0.986 -0.988 -0.989 ...
+ $ fBodyBodyGyroJerkMag-mean(): num  -0.992 -0.996 -0.995 -0.995 -0.995 ...
+ $ fBodyBodyGyroJerkMag-std() : num  -0.991 -0.996 -0.995 -0.995 -0.995 ...
+ $ Subject                    : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ Activity                   : int  5 5 5 5 5 5 5 5 5 5 ...
+
+activity_labels <- read.table(file.path(data_path,"activity_labels.txt"),header=FALSE)
+Data$Activity <- replace(Data$Activity,Data$Activity==1,"WALKING")
+Data$Activity <- replace(Data$Activity,Data$Activity==2,"WALKING_UPSTAIRS")
+Data$Activity <- replace(Data$Activity,Data$Activity==3,"WALKING_DOWNSTAIRS")
+Data$Activity <- replace(Data$Activity,Data$Activity==4,"SITTING")
+Data$Activity <- replace(Data$Activity,Data$Activity==5,"STANDING")
+Data$Activity <- replace(Data$Activity,Data$Activity==6,"LAYING")
+head(Data$Activity,50)
+ [1] "STANDING" "STANDING" "STANDING" "STANDING" "STANDING" "STANDING"
+ [7] "STANDING" "STANDING" "STANDING" "STANDING" "STANDING" "STANDING"
+[13] "STANDING" "STANDING" "STANDING" "STANDING" "STANDING" "STANDING"
+[19] "STANDING" "STANDING" "STANDING" "STANDING" "STANDING" "STANDING"
+[25] "STANDING" "STANDING" "STANDING" "SITTING"  "SITTING"  "SITTING" 
+[31] "SITTING"  "SITTING"  "SITTING"  "SITTING"  "SITTING"  "SITTING" 
+[37] "SITTING"  "SITTING"  "SITTING"  "SITTING"  "SITTING"  "SITTING" 
+[43] "SITTING"  "SITTING"  "SITTING"  "SITTING"  "SITTING"  "SITTING" 
+[49] "SITTING"  "SITTING" 
+
+names(Data) <- gsub("^t","Time",names(Data))
+names(Data) <- gsub("^f","Frequency",names(Data))
+names(Data) <- gsub("Acc","Accelerometer",names(Data))
+names(Data) <- gsub("Gyro","Gyroscope",names(Data))
+names(Data) <- gsub("Mag","Magnitude",names(Data))
+names(Data) <- gsub("BodyBody","Body",names(Data))
+names(Data)
+ [1] "TimeBodyAccelerometer-mean()-X"                
+ [2] "TimeBodyAccelerometer-mean()-Y"                
+ [3] "TimeBodyAccelerometer-mean()-Z"                
+ [4] "TimeBodyAccelerometer-std()-X"                 
+ [5] "TimeBodyAccelerometer-std()-Y"                 
+ [6] "TimeBodyAccelerometer-std()-Z"                 
+ [7] "TimeGravityAccelerometer-mean()-X"             
+ [8] "TimeGravityAccelerometer-mean()-Y"             
+ [9] "TimeGravityAccelerometer-mean()-Z"             
+[10] "TimeGravityAccelerometer-std()-X"              
+[11] "TimeGravityAccelerometer-std()-Y"              
+[12] "TimeGravityAccelerometer-std()-Z"              
+[13] "TimeBodyAccelerometerJerk-mean()-X"            
+[14] "TimeBodyAccelerometerJerk-mean()-Y"            
+[15] "TimeBodyAccelerometerJerk-mean()-Z"            
+[16] "TimeBodyAccelerometerJerk-std()-X"             
+[17] "TimeBodyAccelerometerJerk-std()-Y"             
+[18] "TimeBodyAccelerometerJerk-std()-Z"             
+[19] "TimeBodyGyroscope-mean()-X"                    
+[20] "TimeBodyGyroscope-mean()-Y"                    
+[21] "TimeBodyGyroscope-mean()-Z"                    
+[22] "TimeBodyGyroscope-std()-X"                     
+[23] "TimeBodyGyroscope-std()-Y"                     
+[24] "TimeBodyGyroscope-std()-Z"                     
+[25] "TimeBodyGyroscopeJerk-mean()-X"                
+[26] "TimeBodyGyroscopeJerk-mean()-Y"                
+[27] "TimeBodyGyroscopeJerk-mean()-Z"                
+[28] "TimeBodyGyroscopeJerk-std()-X"                 
+[29] "TimeBodyGyroscopeJerk-std()-Y"                 
+[30] "TimeBodyGyroscopeJerk-std()-Z"                 
+[31] "TimeBodyAccelerometerMagnitude-mean()"         
+[32] "TimeBodyAccelerometerMagnitude-std()"          
+[33] "TimeGravityAccelerometerMagnitude-mean()"      
+[34] "TimeGravityAccelerometerMagnitude-std()"       
+[35] "TimeBodyAccelerometerJerkMagnitude-mean()"     
+[36] "TimeBodyAccelerometerJerkMagnitude-std()"      
+[37] "TimeBodyGyroscopeMagnitude-mean()"             
+[38] "TimeBodyGyroscopeMagnitude-std()"              
+[39] "TimeBodyGyroscopeJerkMagnitude-mean()"         
+[40] "TimeBodyGyroscopeJerkMagnitude-std()"          
+[41] "FrequencyBodyAccelerometer-mean()-X"           
+[42] "FrequencyBodyAccelerometer-mean()-Y"           
+[43] "FrequencyBodyAccelerometer-mean()-Z"           
+[44] "FrequencyBodyAccelerometer-std()-X"            
+[45] "FrequencyBodyAccelerometer-std()-Y"            
+[46] "FrequencyBodyAccelerometer-std()-Z"            
+[47] "FrequencyBodyAccelerometerJerk-mean()-X"       
+[48] "FrequencyBodyAccelerometerJerk-mean()-Y"       
+[49] "FrequencyBodyAccelerometerJerk-mean()-Z"       
+[50] "FrequencyBodyAccelerometerJerk-std()-X"        
+[51] "FrequencyBodyAccelerometerJerk-std()-Y"        
+[52] "FrequencyBodyAccelerometerJerk-std()-Z"        
+[53] "FrequencyBodyGyroscope-mean()-X"               
+[54] "FrequencyBodyGyroscope-mean()-Y"               
+[55] "FrequencyBodyGyroscope-mean()-Z"               
+[56] "FrequencyBodyGyroscope-std()-X"                
+[57] "FrequencyBodyGyroscope-std()-Y"                
+[58] "FrequencyBodyGyroscope-std()-Z"                
+[59] "FrequencyBodyAccelerometerMagnitude-mean()"    
+[60] "FrequencyBodyAccelerometerMagnitude-std()"     
+[61] "FrequencyBodyAccelerometerJerkMagnitude-mean()"
+[62] "FrequencyBodyAccelerometerJerkMagnitude-std()" 
+[63] "FrequencyBodyGyroscopeMagnitude-mean()"        
+[64] "FrequencyBodyGyroscopeMagnitude-std()"         
+[65] "FrequencyBodyGyroscopeJerkMagnitude-mean()"    
+[66] "FrequencyBodyGyroscopeJerkMagnitude-std()"     
+[67] "Subject"                                       
+[68] "Activity"                                      
+
+Tidy_Data <- aggregate(. ~Subject + Activity,Data,mean)
+Tidy_Data <- Tidy_Data[order(Tidy_Data$Subject,Tidy_Data$Activity),]
+write.table(Tidy_Data,file="tidydata.txt",row.name=FALSE)
+
+codebook(Tidy_Data)
+================================================================================
+
+   Subject
+
+--------------------------------------------------------------------------------
+
+   Storage mode: integer
+
+          Min.:   1.000
+       1st Qu.:   8.000
+        Median:  15.500
+          Mean:  15.500
+       3rd Qu.:  23.000
+          Max.:  30.000
+
+================================================================================
+
+   Activity
+
+--------------------------------------------------------------------------------
+
+   Storage mode: character
+
+       Length:        180
+        Class:  character
+         Mode:  character
+
+================================================================================
+
+   TimeBodyAccelerometer-mean()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  0.222
+       1st Qu.:  0.271
+        Median:  0.277
+          Mean:  0.274
+       3rd Qu.:  0.280
+          Max.:  0.301
+
+================================================================================
+
+   TimeBodyAccelerometer-mean()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.041
+       1st Qu.:  -0.020
+        Median:  -0.017
+          Mean:  -0.018
+       3rd Qu.:  -0.015
+          Max.:  -0.001
+
+================================================================================
+
+   TimeBodyAccelerometer-mean()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.153
+       1st Qu.:  -0.112
+        Median:  -0.108
+          Mean:  -0.109
+       3rd Qu.:  -0.104
+          Max.:  -0.075
+
+================================================================================
+
+   TimeBodyAccelerometer-std()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.996
+       1st Qu.:  -0.980
+        Median:  -0.753
+          Mean:  -0.558
+       3rd Qu.:  -0.198
+          Max.:   0.627
+
+================================================================================
+
+   TimeBodyAccelerometer-std()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.990
+       1st Qu.:  -0.942
+        Median:  -0.509
+          Mean:  -0.460
+       3rd Qu.:  -0.031
+          Max.:   0.617
+
+================================================================================
+
+   TimeBodyAccelerometer-std()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.988
+       1st Qu.:  -0.950
+        Median:  -0.652
+          Mean:  -0.576
+       3rd Qu.:  -0.231
+          Max.:   0.609
+
+================================================================================
+
+   TimeGravityAccelerometer-mean()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.680
+       1st Qu.:   0.838
+        Median:   0.921
+          Mean:   0.697
+       3rd Qu.:   0.943
+          Max.:   0.975
+
+================================================================================
+
+   TimeGravityAccelerometer-mean()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.480
+       1st Qu.:  -0.233
+        Median:  -0.128
+          Mean:  -0.016
+       3rd Qu.:   0.088
+          Max.:   0.957
+
+================================================================================
+
+   TimeGravityAccelerometer-mean()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.495
+       1st Qu.:  -0.117
+        Median:   0.024
+          Mean:   0.074
+       3rd Qu.:   0.149
+          Max.:   0.958
+
+================================================================================
+
+   TimeGravityAccelerometer-std()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.997
+       1st Qu.:  -0.982
+        Median:  -0.969
+          Mean:  -0.964
+       3rd Qu.:  -0.951
+          Max.:  -0.830
+
+================================================================================
+
+   TimeGravityAccelerometer-std()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.994
+       1st Qu.:  -0.971
+        Median:  -0.959
+          Mean:  -0.952
+       3rd Qu.:  -0.937
+          Max.:  -0.644
+
+================================================================================
+
+   TimeGravityAccelerometer-std()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.991
+       1st Qu.:  -0.961
+        Median:  -0.945
+          Mean:  -0.936
+       3rd Qu.:  -0.918
+          Max.:  -0.610
+
+================================================================================
+
+   TimeBodyAccelerometerJerk-mean()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  0.043
+       1st Qu.:  0.074
+        Median:  0.076
+          Mean:  0.079
+       3rd Qu.:  0.083
+          Max.:  0.130
+
+================================================================================
+
+   TimeBodyAccelerometerJerk-mean()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.039
+       1st Qu.:   0.000
+        Median:   0.009
+          Mean:   0.008
+       3rd Qu.:   0.013
+          Max.:   0.057
+
+================================================================================
+
+   TimeBodyAccelerometerJerk-mean()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.067
+       1st Qu.:  -0.011
+        Median:  -0.004
+          Mean:  -0.005
+       3rd Qu.:   0.002
+          Max.:   0.038
+
+================================================================================
+
+   TimeBodyAccelerometerJerk-std()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.995
+       1st Qu.:  -0.983
+        Median:  -0.810
+          Mean:  -0.595
+       3rd Qu.:  -0.223
+          Max.:   0.544
+
+================================================================================
+
+   TimeBodyAccelerometerJerk-std()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.990
+       1st Qu.:  -0.972
+        Median:  -0.776
+          Mean:  -0.565
+       3rd Qu.:  -0.148
+          Max.:   0.355
+
+================================================================================
+
+   TimeBodyAccelerometerJerk-std()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.993
+       1st Qu.:  -0.983
+        Median:  -0.884
+          Mean:  -0.736
+       3rd Qu.:  -0.512
+          Max.:   0.031
+
+================================================================================
+
+   TimeBodyGyroscope-mean()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.206
+       1st Qu.:  -0.047
+        Median:  -0.029
+          Mean:  -0.032
+       3rd Qu.:  -0.017
+          Max.:   0.193
+
+================================================================================
+
+   TimeBodyGyroscope-mean()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.204
+       1st Qu.:  -0.090
+        Median:  -0.073
+          Mean:  -0.074
+       3rd Qu.:  -0.061
+          Max.:   0.027
+
+================================================================================
+
+   TimeBodyGyroscope-mean()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.072
+       1st Qu.:   0.075
+        Median:   0.085
+          Mean:   0.087
+       3rd Qu.:   0.102
+          Max.:   0.179
+
+================================================================================
+
+   TimeBodyGyroscope-std()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.994
+       1st Qu.:  -0.973
+        Median:  -0.789
+          Mean:  -0.692
+       3rd Qu.:  -0.441
+          Max.:   0.268
+
+================================================================================
+
+   TimeBodyGyroscope-std()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.994
+       1st Qu.:  -0.963
+        Median:  -0.802
+          Mean:  -0.653
+       3rd Qu.:  -0.420
+          Max.:   0.477
+
+================================================================================
+
+   TimeBodyGyroscope-std()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.986
+       1st Qu.:  -0.961
+        Median:  -0.801
+          Mean:  -0.616
+       3rd Qu.:  -0.311
+          Max.:   0.565
+
+================================================================================
+
+   TimeBodyGyroscopeJerk-mean()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.157
+       1st Qu.:  -0.103
+        Median:  -0.099
+          Mean:  -0.096
+       3rd Qu.:  -0.091
+          Max.:  -0.022
+
+================================================================================
+
+   TimeBodyGyroscopeJerk-mean()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.077
+       1st Qu.:  -0.046
+        Median:  -0.041
+          Mean:  -0.043
+       3rd Qu.:  -0.038
+          Max.:  -0.013
+
+================================================================================
+
+   TimeBodyGyroscopeJerk-mean()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.092
+       1st Qu.:  -0.062
+        Median:  -0.053
+          Mean:  -0.055
+       3rd Qu.:  -0.049
+          Max.:  -0.007
+
+================================================================================
+
+   TimeBodyGyroscopeJerk-std()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.997
+       1st Qu.:  -0.980
+        Median:  -0.840
+          Mean:  -0.704
+       3rd Qu.:  -0.463
+          Max.:   0.179
+
+================================================================================
+
+   TimeBodyGyroscopeJerk-std()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.997
+       1st Qu.:  -0.983
+        Median:  -0.894
+          Mean:  -0.764
+       3rd Qu.:  -0.586
+          Max.:   0.296
+
+================================================================================
+
+   TimeBodyGyroscopeJerk-std()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.995
+       1st Qu.:  -0.985
+        Median:  -0.861
+          Mean:  -0.710
+       3rd Qu.:  -0.474
+          Max.:   0.193
+
+================================================================================
+
+   TimeBodyAccelerometerMagnitude-mean()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.986
+       1st Qu.:  -0.957
+        Median:  -0.483
+          Mean:  -0.497
+       3rd Qu.:  -0.092
+          Max.:   0.645
+
+================================================================================
+
+   TimeBodyAccelerometerMagnitude-std()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.986
+       1st Qu.:  -0.943
+        Median:  -0.607
+          Mean:  -0.544
+       3rd Qu.:  -0.209
+          Max.:   0.428
+
+================================================================================
+
+   TimeGravityAccelerometerMagnitude-mean()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.986
+       1st Qu.:  -0.957
+        Median:  -0.483
+          Mean:  -0.497
+       3rd Qu.:  -0.092
+          Max.:   0.645
+
+================================================================================
+
+   TimeGravityAccelerometerMagnitude-std()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.986
+       1st Qu.:  -0.943
+        Median:  -0.607
+          Mean:  -0.544
+       3rd Qu.:  -0.209
+          Max.:   0.428
+
+================================================================================
+
+   TimeBodyAccelerometerJerkMagnitude-mean()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.993
+       1st Qu.:  -0.981
+        Median:  -0.817
+          Mean:  -0.608
+       3rd Qu.:  -0.246
+          Max.:   0.434
+
+================================================================================
+
+   TimeBodyAccelerometerJerkMagnitude-std()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.995
+       1st Qu.:  -0.977
+        Median:  -0.801
+          Mean:  -0.584
+       3rd Qu.:  -0.217
+          Max.:   0.451
+
+================================================================================
+
+   TimeBodyGyroscopeMagnitude-mean()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.981
+       1st Qu.:  -0.946
+        Median:  -0.655
+          Mean:  -0.565
+       3rd Qu.:  -0.216
+          Max.:   0.418
+
+================================================================================
+
+   TimeBodyGyroscopeMagnitude-std()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.981
+       1st Qu.:  -0.948
+        Median:  -0.742
+          Mean:  -0.630
+       3rd Qu.:  -0.360
+          Max.:   0.300
+
+================================================================================
+
+   TimeBodyGyroscopeJerkMagnitude-mean()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.997
+       1st Qu.:  -0.985
+        Median:  -0.865
+          Mean:  -0.736
+       3rd Qu.:  -0.512
+          Max.:   0.088
+
+================================================================================
+
+   TimeBodyGyroscopeJerkMagnitude-std()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.998
+       1st Qu.:  -0.980
+        Median:  -0.881
+          Mean:  -0.755
+       3rd Qu.:  -0.577
+          Max.:   0.250
+
+================================================================================
+
+   FrequencyBodyAccelerometer-mean()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.995
+       1st Qu.:  -0.979
+        Median:  -0.769
+          Mean:  -0.576
+       3rd Qu.:  -0.217
+          Max.:   0.537
+
+================================================================================
+
+   FrequencyBodyAccelerometer-mean()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.989
+       1st Qu.:  -0.954
+        Median:  -0.595
+          Mean:  -0.489
+       3rd Qu.:  -0.063
+          Max.:   0.524
+
+================================================================================
+
+   FrequencyBodyAccelerometer-mean()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.989
+       1st Qu.:  -0.962
+        Median:  -0.724
+          Mean:  -0.630
+       3rd Qu.:  -0.318
+          Max.:   0.281
+
+================================================================================
+
+   FrequencyBodyAccelerometer-std()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.997
+       1st Qu.:  -0.982
+        Median:  -0.747
+          Mean:  -0.552
+       3rd Qu.:  -0.197
+          Max.:   0.659
+
+================================================================================
+
+   FrequencyBodyAccelerometer-std()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.991
+       1st Qu.:  -0.940
+        Median:  -0.513
+          Mean:  -0.481
+       3rd Qu.:  -0.079
+          Max.:   0.560
+
+================================================================================
+
+   FrequencyBodyAccelerometer-std()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.987
+       1st Qu.:  -0.946
+        Median:  -0.644
+          Mean:  -0.582
+       3rd Qu.:  -0.265
+          Max.:   0.687
+
+================================================================================
+
+   FrequencyBodyAccelerometerJerk-mean()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.995
+       1st Qu.:  -0.983
+        Median:  -0.813
+          Mean:  -0.614
+       3rd Qu.:  -0.282
+          Max.:   0.474
+
+================================================================================
+
+   FrequencyBodyAccelerometerJerk-mean()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.989
+       1st Qu.:  -0.973
+        Median:  -0.782
+          Mean:  -0.588
+       3rd Qu.:  -0.196
+          Max.:   0.277
+
+================================================================================
+
+   FrequencyBodyAccelerometerJerk-mean()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.992
+       1st Qu.:  -0.980
+        Median:  -0.871
+          Mean:  -0.714
+       3rd Qu.:  -0.470
+          Max.:   0.158
+
+================================================================================
+
+   FrequencyBodyAccelerometerJerk-std()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.995
+       1st Qu.:  -0.985
+        Median:  -0.825
+          Mean:  -0.612
+       3rd Qu.:  -0.248
+          Max.:   0.477
+
+================================================================================
+
+   FrequencyBodyAccelerometerJerk-std()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.990
+       1st Qu.:  -0.974
+        Median:  -0.785
+          Mean:  -0.571
+       3rd Qu.:  -0.169
+          Max.:   0.350
+
+================================================================================
+
+   FrequencyBodyAccelerometerJerk-std()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.993
+       1st Qu.:  -0.984
+        Median:  -0.895
+          Mean:  -0.756
+       3rd Qu.:  -0.544
+          Max.:  -0.006
+
+================================================================================
+
+   FrequencyBodyGyroscope-mean()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.993
+       1st Qu.:  -0.970
+        Median:  -0.730
+          Mean:  -0.637
+       3rd Qu.:  -0.339
+          Max.:   0.475
+
+================================================================================
+
+   FrequencyBodyGyroscope-mean()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.994
+       1st Qu.:  -0.970
+        Median:  -0.814
+          Mean:  -0.677
+       3rd Qu.:  -0.446
+          Max.:   0.329
+
+================================================================================
+
+   FrequencyBodyGyroscope-mean()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.986
+       1st Qu.:  -0.962
+        Median:  -0.791
+          Mean:  -0.604
+       3rd Qu.:  -0.263
+          Max.:   0.492
+
+================================================================================
+
+   FrequencyBodyGyroscope-std()-X
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.995
+       1st Qu.:  -0.975
+        Median:  -0.809
+          Mean:  -0.711
+       3rd Qu.:  -0.481
+          Max.:   0.197
+
+================================================================================
+
+   FrequencyBodyGyroscope-std()-Y
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.994
+       1st Qu.:  -0.960
+        Median:  -0.796
+          Mean:  -0.645
+       3rd Qu.:  -0.415
+          Max.:   0.646
+
+================================================================================
+
+   FrequencyBodyGyroscope-std()-Z
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.987
+       1st Qu.:  -0.964
+        Median:  -0.822
+          Mean:  -0.658
+       3rd Qu.:  -0.392
+          Max.:   0.522
+
+================================================================================
+
+   FrequencyBodyAccelerometerMagnitude-mean()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.987
+       1st Qu.:  -0.956
+        Median:  -0.670
+          Mean:  -0.537
+       3rd Qu.:  -0.162
+          Max.:   0.587
+
+================================================================================
+
+   FrequencyBodyAccelerometerMagnitude-std()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.988
+       1st Qu.:  -0.945
+        Median:  -0.651
+          Mean:  -0.621
+       3rd Qu.:  -0.365
+          Max.:   0.179
+
+================================================================================
+
+   FrequencyBodyAccelerometerJerkMagnitude-mean()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.994
+       1st Qu.:  -0.977
+        Median:  -0.794
+          Mean:  -0.576
+       3rd Qu.:  -0.187
+          Max.:   0.538
+
+================================================================================
+
+   FrequencyBodyAccelerometerJerkMagnitude-std()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.994
+       1st Qu.:  -0.975
+        Median:  -0.813
+          Mean:  -0.599
+       3rd Qu.:  -0.267
+          Max.:   0.316
+
+================================================================================
+
+   FrequencyBodyGyroscopeMagnitude-mean()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.987
+       1st Qu.:  -0.962
+        Median:  -0.766
+          Mean:  -0.667
+       3rd Qu.:  -0.409
+          Max.:   0.204
+
+================================================================================
+
+   FrequencyBodyGyroscopeMagnitude-std()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.981
+       1st Qu.:  -0.949
+        Median:  -0.773
+          Mean:  -0.672
+       3rd Qu.:  -0.428
+          Max.:   0.237
+
+================================================================================
+
+   FrequencyBodyGyroscopeJerkMagnitude-mean()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.998
+       1st Qu.:  -0.981
+        Median:  -0.878
+          Mean:  -0.756
+       3rd Qu.:  -0.583
+          Max.:   0.147
+
+================================================================================
+
+   FrequencyBodyGyroscopeJerkMagnitude-std()
+
+--------------------------------------------------------------------------------
+
+   Storage mode: double
+
+          Min.:  -0.998
+       1st Qu.:  -0.980
+        Median:  -0.894
+          Mean:  -0.772
+       3rd Qu.:  -0.608
+          Max.:   0.288
